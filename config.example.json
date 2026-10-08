@@ -1,0 +1,41 @@
+{
+  "job_folders": {
+    "root": "\\\\fileserver\\Shared\\Jobs",
+    "pattern": "{year}/{customer}/{job_number} - {project_name}",
+    "subfolders": [
+      "01 Quote",
+      "02 Customer PO",
+      "03 Drawings & Schematics",
+      "04 Submittals",
+      "05 BOM & Purchasing",
+      "06 Correspondence",
+      "07 Shipping & Closeout"
+    ],
+    "template_source": ""
+  },
+
+  "email_templates": {
+    "Quote Follow-Up": {
+      "subject": "Quote {job_number} - {project_name}",
+      "cc": "",
+      "body": "Hi {contact_name},\n\nI wanted to follow up on quote {job_number} for {project_name}. Do you have any questions, or is there anything we can adjust to help move this forward?\n\nThanks,"
+    },
+    "Order Acknowledgement": {
+      "subject": "Order Received - {customer} / Job {job_number}",
+      "cc": "",
+      "body": "Hi {contact_name},\n\nThank you for your order for {project_name}. We have entered it as job {job_number} and will send submittal drawings for approval shortly.\n\nThanks,"
+    },
+    "Submittals for Approval": {
+      "subject": "Submittals for Approval - Job {job_number} - {project_name}",
+      "cc": "",
+      "body": "Hi {contact_name},\n\nAttached are the submittal drawings for job {job_number} ({project_name}). Please review and return approved or with comments so we can release the panel to production.\n\nThanks,"
+    }
+  },
+
+  "quick_links": [
+    { "name": "Salesforce", "url": "https://login.salesforce.com" },
+    { "name": "Outlook", "url": "https://outlook.office.com" },
+    { "name": "Teams", "url": "https://teams.microsoft.com" },
+    { "name": "SharePoint", "url": "https://www.office.com/launch/sharepoint" }
+  ]
+}

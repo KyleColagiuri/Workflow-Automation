@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Workflow Hub</title>
+<style>
+  :root { --bg:#f4f6f8; --card:#fff; --ink:#1d2733; --muted:#5d6b7a; --accent:#0b5cad; --ok:#1e7b3a; --err:#b42318; --line:#dde3ea; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: "Segoe UI", system-ui, sans-serif; background:var(--bg); color:var(--ink); }
+  header { background:var(--accent); color:#fff; padding:16px 24px; }
+  header h1 { margin:0; font-size:20px; font-weight:600; }
+  main { max-width:1100px; margin:0 auto; padding:20px 16px 60px; }
+  h2 { font-size:13px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin:28px 0 10px; }
+  .links { display:flex; flex-wrap:wrap; gap:8px; }
+  .links a { background:var(--card); border:1px solid var(--line); border-radius:6px; padding:8px 14px; color:var(--accent); text-decoration:none; font-size:14px; }
+  .links a:hover { border-color:var(--accent); }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:14px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:16px; display:flex; flex-direction:column; }
+  .card h3 { margin:0 0 6px; font-size:16px; }
+  .card p { margin:0 0 12px; color:var(--muted); font-size:13px; line-height:1.4; }
+  label { display:block; font-size:12px; color:var(--muted); margin:8px 0 3px; }
+  input, select { width:100%; padding:7px 9px; border:1px solid var(--line); border-radius:5px; font:inherit; font-size:14px; }
+  button { margin-top:14px; background:var(--accent); color:#fff; border:0; border-radius:6px; padding:10px; font:inherit; font-weight:600; cursor:pointer; }
+  button:disabled { opacity:.6; cursor:wait; }
+  .result { margin-top:10px; font-size:13px; word-break:break-word; }
+  .result.ok { color:var(--ok); } .result.err { color:var(--err); }
+</style>
+</head>
+<body>
+<header><h1>Workflow Hub</h1></header>
+<main>
+  <h2>Quick Links</h2>
+  <div class="links" id="links"></div>
+  <div id="sections"></div>
+</main>
+<script>
+function make(tag, props = {}, children = []) {
+  const n = Object.assign(document.createElement(tag), props);
+  children.forEach(c => n.append(c));
+  return n;
+}
+
+function card(action) {
+  const form = make("form");
+  action.fields.forEach(f => {
+    const id = `${action.id}-${f.name}`;
+    form.append(make("label", { htmlFor: id, textContent: f.label + (f.required ? " *" : "") }));
+    const input = f.options
+      ? make("select", { id, name: f.name }, f.options.map(o => make("option", { value: o, textContent: o })))
+      : make("input", { id, name: f.name });
+    input.required = !!f.required;
+    form.append(input);
+  });
+  const btn = make("button", { type: "submit", textContent: action.title });
+  const result = make("div", { className: "result" });
+  form.append(btn, result);
+  form.addEventListener("submit", async e => {
+    e.preventDefault();
+    btn.disabled = true; result.className = "result"; result.textContent = "Running…";
+    try {
+      const res = await fetch(`/api/run/${action.id}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Hub-Request": "1" },
+        body: JSON.stringify(Object.fromEntries(new FormData(form))),
+      });
+      const data = await res.json();
+      result.className = "result " + (data.ok ? "ok" : "err");
+      result.textContent = data.message;
+    } catch (err) {
+      result.className = "result err"; result.textContent = "Hub not reachable: " + err;
+    } finally { btn.disabled = false; }
+  });
+  return make("div", { className: "card" }, [
+    make("h3", { textContent: action.title }),
+    make("p", { textContent: action.description }),
+    form,
+  ]);
+}
+
+fetch("/api/actions").then(r => r.json()).then(({ actions, links }) => {
+  const linkBox = document.getElementById("links");
+  links.forEach(l => linkBox.append(make("a", { href: l.url, target: "_blank", rel: "noopener", textContent: l.name })));
+  const byCat = {};
+  actions.forEach(a => (byCat[a.category] ||= []).push(a));
+  const sections = document.getElementById("sections");
+  Object.entries(byCat).forEach(([cat, list]) => {
+    sections.append(make("h2", { textContent: cat }), make("div", { className: "grid" }, list.map(card)));
+  });
+});
+</script>
+</body>
+</html>
