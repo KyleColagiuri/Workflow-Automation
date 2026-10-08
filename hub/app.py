@@ -78,13 +78,16 @@ class Handler(BaseHTTPRequestHandler):
             self._send(403, {"ok": False, "message": "Forbidden"})
             return
         action_id = self.path.rsplit("/", 1)[-1]
+        inputs = {}
         try:
             length = int(self.headers.get("Content-Length", 0))
             inputs = json.loads(self.rfile.read(length) or b"{}")
-            message = run_action(action_id, inputs, load_config())
-            log.info("OK   %s %s -> %s", action_id, inputs, message)
-            self._send(200, {"ok": True, "message": message})
-        except ActionError as e:
+            result = run_action(action_id, inputs, load_config())
+            if not isinstance(result, dict):
+                result = {"message": result}
+            log.info("OK   %s %s -> %s", action_id, inputs, result["message"])
+            self._send(200, {"ok": True, **result})
+        except (ActionError, ValueError) as e:
             log.warning("FAIL %s %s -> %s", action_id, inputs, e)
             self._send(400, {"ok": False, "message": str(e)})
         except Exception as e:  # unexpected bug: log full trace, show short message

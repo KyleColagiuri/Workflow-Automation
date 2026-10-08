@@ -73,3 +73,25 @@ def email_from_template(inputs, config):
         body=render(tpl["body"], inputs),
     )
     return f"Opened Outlook draft: {render(tpl['subject'], inputs)}"
+
+
+@action(
+    id="text_snippet",
+    title="Copy Text Snippet",
+    description="Fill in a saved text block (proposal email body for Salesforce, vendor RFQ, etc.) "
+    "and copy it to paste anywhere.",
+    category="Outlook",
+    fields=[
+        {"name": "snippet", "label": "Snippet", "required": True, "options_from": "snippets"},
+        {"name": "contact_name", "label": "Contact First Name"},
+        {"name": "lead_number", "label": "Lead #"},
+        {"name": "project_name", "label": "Proposal / Project Name"},
+        {"name": "details", "label": "Extra Details (optional)"},
+    ],
+)
+def text_snippet(inputs, config):
+    snippets = config.get("snippets", {})
+    text = snippets.get(inputs.get("snippet", ""))
+    if text is None:
+        raise ActionError(f"Unknown snippet. Available: {', '.join(snippets) or 'none configured'}")
+    return {"message": "Ready to paste", "copy_text": render(text, inputs)}

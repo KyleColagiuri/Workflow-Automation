@@ -25,6 +25,9 @@
   button:disabled { opacity:.6; cursor:wait; }
   .result { margin-top:10px; font-size:13px; word-break:break-word; }
   .result.ok { color:var(--ok); } .result.err { color:var(--err); }
+  textarea.copy { width:100%; margin-top:8px; font:13px/1.4 Consolas, monospace; border:1px solid var(--line); border-radius:5px; padding:8px; resize:vertical; }
+  button.secondary { margin-top:6px; background:#fff; color:var(--accent); border:1px solid var(--accent); padding:6px; }
+  [hidden] { display:none !important; }
 </style>
 </head>
 <body>
@@ -48,16 +51,24 @@ function card(action) {
     form.append(make("label", { htmlFor: id, textContent: f.label + (f.required ? " *" : "") }));
     const input = f.options
       ? make("select", { id, name: f.name }, f.options.map(o => make("option", { value: o, textContent: o })))
-      : make("input", { id, name: f.name });
+      : make("input", { id, name: f.name, type: f.type || "text" });
     input.required = !!f.required;
     form.append(input);
   });
   const btn = make("button", { type: "submit", textContent: action.title });
   const result = make("div", { className: "result" });
-  form.append(btn, result);
+  const copyBox = make("textarea", { className: "copy", readOnly: true, hidden: true, rows: 6 });
+  const copyBtn = make("button", { type: "button", className: "secondary", textContent: "Copy", hidden: true });
+  copyBtn.addEventListener("click", async () => {
+    copyBox.select();
+    try { await navigator.clipboard.writeText(copyBox.value); } catch { document.execCommand("copy"); }
+    copyBtn.textContent = "Copied ✓"; setTimeout(() => (copyBtn.textContent = "Copy"), 1500);
+  });
+  form.append(btn, result, copyBox, copyBtn);
   form.addEventListener("submit", async e => {
     e.preventDefault();
     btn.disabled = true; result.className = "result"; result.textContent = "Running…";
+    copyBox.hidden = copyBtn.hidden = true;
     try {
       const res = await fetch(`/api/run/${action.id}`, {
         method: "POST",
@@ -67,6 +78,11 @@ function card(action) {
       const data = await res.json();
       result.className = "result " + (data.ok ? "ok" : "err");
       result.textContent = data.message;
+      if (data.copy_text) {
+        copyBox.value = data.copy_text;
+        copyBox.rows = Math.min(14, data.copy_text.split("\n").length + 1);
+        copyBox.hidden = copyBtn.hidden = false;
+      }
     } catch (err) {
       result.className = "result err"; result.textContent = "Hub not reachable: " + err;
     } finally { btn.disabled = false; }

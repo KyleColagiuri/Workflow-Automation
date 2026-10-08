@@ -13,8 +13,37 @@
     ],
     "template_source": ""
   },
-
+  "o_drive": {
+    "root": "O:/",
+    "contract_folder": "Contract Dwgs & Specs",
+    "rev_prefix": "REV ",
+    "proposals_folder": "Proposals and Estimates",
+    "correspondence_folder": "Correspondence"
+  },
+  "sage": {
+    "onedrive_root": "C:/Users/YOUR_USERNAME/OneDrive - Revere Control Systems/Master Database User Group - OEM",
+    "task_title": "{lead_number} - {account} - {project_name}",
+    "days_before_bid": 2,
+    "priority_map": {
+      "New Business": "Important",
+      "Strategic Account": "As requested by account",
+      "Existing Customer": "Medium"
+    },
+    "message_template": "SAGE_CONTACT_NAME,\n\nPlease start on this opportunity. {notes}\n\n{path}\n\nThanks,"
+  },
+  "salesforce": {
+    "estimator": "YOUR NAME",
+    "default_amount": 9999,
+    "close_months_after_bid": 6,
+    "default_project_type": "Water/Waste Water",
+    "quote_valid_days": 60
+  },
   "email_templates": {
+    "RFQ Acknowledgement": {
+      "subject": "RE: {project_name}",
+      "cc": "",
+      "body": "Hi {contact_name},\n\nThank you for the opportunity to quote, we will get started on this for you.\n\nBest,"
+    },
     "Quote Follow-Up": {
       "subject": "Quote {job_number} - {project_name}",
       "cc": "",
@@ -31,11 +60,26 @@
       "body": "Hi {contact_name},\n\nAttached are the submittal drawings for job {job_number} ({project_name}). Please review and return approved or with comments so we can release the panel to production.\n\nThanks,"
     }
   },
-
+  "snippets": {
+    "Proposal Submission (Salesforce body)": "Hi {contact_name},\n\nPlease see our proposal for {project_name} (Lead {lead_number}). {details}\n\nLet me know if you have any questions.\n\nBest,",
+    "Vendor Quote Request": "Hi {contact_name},\n\nCould you please quote the following for Lead {lead_number} ({project_name}):\n\n{details}\n\nThanks,"
+  },
   "quick_links": [
-    { "name": "Salesforce", "url": "https://login.salesforce.com" },
-    { "name": "Outlook", "url": "https://outlook.office.com" },
-    { "name": "Teams", "url": "https://teams.microsoft.com" },
-    { "name": "SharePoint", "url": "https://www.office.com/launch/sharepoint" }
+    {
+      "name": "Salesforce",
+      "url": "https://login.salesforce.com"
+    },
+    {
+      "name": "Outlook",
+      "url": "https://outlook.office.com"
+    },
+    {
+      "name": "Teams",
+      "url": "https://teams.microsoft.com"
+    },
+    {
+      "name": "SharePoint",
+      "url": "https://www.office.com/launch/sharepoint"
+    }
   ]
 }

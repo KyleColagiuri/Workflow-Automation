@@ -13,7 +13,8 @@ def action(id, title, description, fields=(), category="General"):
 
     fields: list of dicts like {"name": "customer", "label": "Customer", "required": True}
     The decorated function receives (inputs: dict, config: dict) and returns a
-    short message string describing what it did. Raise ActionError for
+    short message string describing what it did, or a dict with "message" and
+    "copy_text" (text shown in a box with a Copy button). Raise ActionError for
     problems the user should see.
     """
 
@@ -37,4 +38,4 @@ class ActionError(Exception):
 
 def load_all():
     # Importing the modules registers their actions.
-    from . import email, folders  # noqa: F401
+    from . import email, folders, leads, salesforce  # noqa: F401
